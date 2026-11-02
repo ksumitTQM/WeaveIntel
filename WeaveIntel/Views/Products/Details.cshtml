@@ -1,0 +1,248 @@
+@model ProductDetailsViewModel
+@{
+    var product = Model.Product;
+    ViewData["Title"] = product.Name;
+}
+
+<div class="d-flex justify-content-between align-items-start flex-wrap mb-3">
+    <div>
+        <div class="text-muted small"><a asp-action="Index">Products</a> / <code>@product.Code</code></div>
+        <h1 class="wi-page-title mb-1">@product.Name</h1>
+        <span class="wi-badge @product.Status.CssClass()">@product.Status.DisplayName()</span>
+        <span class="wi-badge wi-badge-outline">@product.Category.DisplayName()</span>
+    </div>
+    <div class="d-flex gap-2 flex-wrap mt-2">
+        <a class="btn btn-outline-primary" asp-controller="Availability" asp-action="Manage" asp-route-id="@product.Id">Manage availability</a>
+        <a class="btn btn-outline-primary" asp-controller="Performance" asp-action="Create" asp-route-productId="@product.Id">Add performance</a>
+        <a class="btn btn-primary" asp-action="Edit" asp-route-id="@product.Id">Edit</a>
+        <a class="btn btn-outline-danger" asp-action="Delete" asp-route-id="@product.Id">Delete</a>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-lg-8">
+        <div class="wi-card h-100">
+            <h2 class="wi-card-title">Overview</h2>
+            <p>@(string.IsNullOrWhiteSpace(product.Description) ? "No description provided." : product.Description)</p>
+            <dl class="row mb-0">
+                <dt class="col-sm-4">Owner</dt>
+                <dd class="col-sm-8">@product.Owner</dd>
+                <dt class="col-sm-4">Base price</dt>
+                <dd class="col-sm-8">@product.BasePrice.ToString("N2") @product.Currency</dd>
+                <dt class="col-sm-4">Launch date</dt>
+                <dd class="col-sm-8">@(product.LaunchDate.HasValue ? product.LaunchDate.Value.ToString("yyyy-MM-dd") : "Not scheduled")</dd>
+                <dt class="col-sm-4">Created</dt>
+                <dd class="col-sm-8">@product.CreatedAt.ToString("yyyy-MM-dd")</dd>
+            </dl>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="row g-3">
+            <div class="col-6 col-lg-12">
+                <div class="wi-kpi">
+                    <div class="wi-kpi-label">Revenue (EUR)</div>
+                    <div class="wi-kpi-value">@Model.Performance.TotalRevenue.ToString("N0")</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-6">
+                <div class="wi-kpi">
+                    <div class="wi-kpi-label">Units</div>
+                    <div class="wi-kpi-value">@Model.Performance.TotalUnits.ToString("N0")</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-6">
+                <div class="wi-kpi">
+                    <div class="wi-kpi-label">Attach rate</div>
+                    <div class="wi-kpi-value">@Model.Performance.AverageAttachRatePercent.ToString("0.0")%</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-lg-7">
+        <div class="wi-card h-100">
+            <h2 class="wi-card-title">Monthly revenue (EUR)</h2>
+            @if (Model.Performance.Monthly.Count == 0)
+            {
+                <p class="text-muted mb-0">No performance records yet.</p>
+            }
+            else
+            {
+                <div class="wi-chart-box"><canvas id="monthlyChart"></canvas></div>
+            }
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="wi-card h-100">
+            <h2 class="wi-card-title">Product tracking timeline</h2>
+            @if (Model.Timeline.Count == 0)
+            {
+                <p class="text-muted mb-0">No tracking events yet.</p>
+            }
+            else
+            {
+                <ul class="wi-timeline">
+                    @foreach (var item in Model.Timeline)
+                    {
+                        <li class="wi-timeline-item wi-timeline-@item.Kind">
+                            <span class="wi-timeline-dot"></span>
+                            <div class="wi-timeline-date">@item.Date.ToString("yyyy-MM-dd")</div>
+                            <div class="wi-timeline-title">
+                                @item.Title
+                                @if (item.Status.HasValue)
+                                {
+                                    <span class="wi-badge @item.Status.Value.CssClass()">@item.Status.Value.DisplayName()</span>
+                                }
+                            </div>
+                            @if (!string.IsNullOrWhiteSpace(item.Detail))
+                            {
+                                <div class="wi-timeline-detail">@item.Detail</div>
+                            }
+                        </li>
+                    }
+                </ul>
+            }
+        </div>
+    </div>
+</div>
+
+<div class="wi-card mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <h2 class="wi-card-title mb-0">Route and channel availability</h2>
+        <a class="btn btn-sm btn-outline-primary" asp-controller="Availability" asp-action="Manage" asp-route-id="@product.Id">Manage</a>
+    </div>
+    @if (Model.Availabilities.Count == 0)
+    {
+        <p class="text-muted mb-0">Not yet available on any route.</p>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-sm align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Route</th>
+                        <th>Region</th>
+                        <th>Channel</th>
+                        <th class="text-end">Price</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var a in Model.Availabilities)
+                    {
+                        <tr>
+                            <td>@a.FlightRoute.Code</td>
+                            <td>@a.FlightRoute.Region.DisplayName()</td>
+                            <td>@a.Channel.DisplayName()</td>
+                            <td class="text-end">@((a.RoutePrice ?? product.BasePrice).ToString("N2")) @product.Currency</td>
+                            <td>
+                                @if (a.IsActive)
+                                {
+                                    <span class="wi-badge wi-status-live">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="wi-badge wi-status-retired">Inactive</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+<div class="wi-card mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <h2 class="wi-card-title mb-0">Recent performance records</h2>
+        <a class="btn btn-sm btn-outline-primary" asp-controller="Performance" asp-action="Create" asp-route-productId="@product.Id">Add record</a>
+    </div>
+    @if (Model.RecentRecords.Count == 0)
+    {
+        <p class="text-muted mb-0">No performance records yet.</p>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-sm align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Month</th>
+                        <th>Route</th>
+                        <th class="text-end">Units</th>
+                        <th class="text-end">Revenue (EUR)</th>
+                        <th class="text-end">Attach rate</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var r in Model.RecentRecords)
+                    {
+                        <tr>
+                            <td>@r.Month.ToString("yyyy-MM")</td>
+                            <td>@r.FlightRoute.Code</td>
+                            <td class="text-end">@r.UnitsSold.ToString("N0")</td>
+                            <td class="text-end">@r.Revenue.ToString("N2")</td>
+                            <td class="text-end">@r.AttachRatePercent.ToString("0.0")%</td>
+                            <td class="text-end">
+                                <form asp-controller="Performance" asp-action="Delete" asp-route-id="@r.Id" method="post"
+                                      onsubmit="return confirm('Delete this performance record?');">
+                                    <input type="hidden" name="productId" value="@product.Id" />
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    @if (Model.Performance.Monthly.Count > 0)
+    {
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+        <script>
+            (function () {
+                var monthly = @Json.Serialize(Model.Performance.Monthly);
+                new Chart(document.getElementById('monthlyChart'), {
+                    type: 'bar',
+                    data: {
+                        labels: monthly.map(function (m) { return m.month; }),
+                        datasets: [
+                            {
+                                type: 'bar',
+                                label: 'Revenue (EUR)',
+                                data: monthly.map(function (m) { return m.revenue; }),
+                                backgroundColor: '#13a0e8',
+                                yAxisID: 'y'
+                            },
+                            {
+                                type: 'line',
+                                label: 'Attach rate (%)',
+                                data: monthly.map(function (m) { return m.attachRatePercent; }),
+                                borderColor: '#f2a900',
+                                backgroundColor: '#f2a900',
+                                tension: 0.3,
+                                yAxisID: 'y1'
+                            }
+                        ]
+                    },
+                    options: {
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: { beginAtZero: true, position: 'left' },
+                            y1: { beginAtZero: true, position: 'right', grid: { drawOnChartArea: false } }
+                        },
+                        plugins: { legend: { position: 'bottom' } }
+                    }
+                });
+            })();
+        </script>
+    }
+}

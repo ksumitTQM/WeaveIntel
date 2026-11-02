@@ -1,0 +1,217 @@
+@model DashboardDto
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="d-flex justify-content-between align-items-center flex-wrap mb-3">
+    <div>
+        <h1 class="wi-page-title mb-0">Product dashboard</h1>
+        <p class="text-muted mb-0">Portfolio health across lifecycle stages, categories and revenue.</p>
+    </div>
+    <a class="btn btn-primary" asp-controller="Products" asp-action="Create">New product</a>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+        <div class="wi-kpi">
+            <div class="wi-kpi-label">Products</div>
+            <div class="wi-kpi-value">@Model.TotalProducts</div>
+            <div class="wi-kpi-sub">@Model.LiveProducts live</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="wi-kpi">
+            <div class="wi-kpi-label">Revenue (EUR)</div>
+            <div class="wi-kpi-value">@Model.TotalRevenue.ToString("N0")</div>
+            <div class="wi-kpi-sub">all recorded months</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="wi-kpi">
+            <div class="wi-kpi-label">Units sold</div>
+            <div class="wi-kpi-value">@Model.TotalUnits.ToString("N0")</div>
+            <div class="wi-kpi-sub">all products</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="wi-kpi">
+            <div class="wi-kpi-label">Avg attach rate</div>
+            <div class="wi-kpi-value">@Model.AverageAttachRatePercent.ToString("0.0")%</div>
+            <div class="wi-kpi-sub">across records</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-lg-4">
+        <div class="wi-card h-100">
+            <h2 class="wi-card-title">Products by lifecycle stage</h2>
+            <div class="wi-chart-box"><canvas id="statusChart"></canvas></div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="wi-card h-100">
+            <h2 class="wi-card-title">Revenue by category (EUR)</h2>
+            <div class="wi-chart-box"><canvas id="categoryChart"></canvas></div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="wi-card h-100">
+            <h2 class="wi-card-title">Revenue by month (EUR)</h2>
+            <div class="wi-chart-box"><canvas id="monthChart"></canvas></div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-6">
+        <div class="wi-card h-100">
+            <h2 class="wi-card-title">Top 5 products by revenue</h2>
+            @if (Model.TopProducts.Count == 0)
+            {
+                <p class="text-muted mb-0">No sales recorded yet.</p>
+            }
+            else
+            {
+                <div class="wi-chart-box wi-chart-box-sm"><canvas id="topChart"></canvas></div>
+                <table class="table table-sm align-middle mt-3 mb-0">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th class="text-end">Units</th>
+                            <th class="text-end">Revenue (EUR)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.TopProducts)
+                        {
+                            <tr>
+                                <td>
+                                    <a asp-controller="Products" asp-action="Details" asp-route-id="@item.Id">@item.Name</a>
+                                    <span class="text-muted small">@item.Code</span>
+                                </td>
+                                <td class="text-end">@item.Units.ToString("N0")</td>
+                                <td class="text-end">@item.Revenue.ToString("N0")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="wi-card h-100">
+            <h2 class="wi-card-title">Recent status changes</h2>
+            @if (Model.RecentChanges.Count == 0)
+            {
+                <p class="text-muted mb-0">No status changes recorded.</p>
+            }
+            else
+            {
+                <ul class="list-unstyled wi-change-list mb-0">
+                    @foreach (var change in Model.RecentChanges)
+                    {
+                        <li>
+                            <div class="d-flex justify-content-between flex-wrap">
+                                <div>
+                                    <a asp-controller="Products" asp-action="Details" asp-route-id="@change.ProductId" class="fw-semibold">@change.ProductName</a>
+                                    <span class="text-muted small">@change.ProductCode</span>
+                                </div>
+                                <span class="text-muted small">@change.ChangedAt.ToString("yyyy-MM-dd")</span>
+                            </div>
+                            <div class="mt-1">
+                                @if (change.FromStatus.HasValue)
+                                {
+                                    <span class="wi-badge @change.FromStatus.Value.CssClass()">@change.FromStatus.Value.DisplayName()</span>
+                                    <span class="text-muted">&rarr;</span>
+                                }
+                                <span class="wi-badge @change.ToStatus.CssClass()">@change.ToStatus.DisplayName()</span>
+                                <span class="text-muted small ms-1">by @change.ChangedBy</span>
+                            </div>
+                            @if (!string.IsNullOrWhiteSpace(change.Comment))
+                            {
+                                <div class="small text-muted mt-1">@change.Comment</div>
+                            }
+                        </li>
+                    }
+                </ul>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script>
+        (function () {
+            var palette = ['#0b5cab', '#13a0e8', '#f2a900', '#2fa36b', '#e4572e', '#7a5cc7'];
+            var statusColors = ['#8a99ad', '#f2a900', '#13a0e8', '#2fa36b', '#c0392b'];
+
+            var byStatus = @Json.Serialize(Model.ProductsByStatus);
+            var byCategory = @Json.Serialize(Model.RevenueByCategory);
+            var byMonth = @Json.Serialize(Model.RevenueByMonth);
+            var top = @Json.Serialize(Model.TopProducts);
+
+            function labels(items) { return items.map(function (x) { return x.label; }); }
+            function values(items) { return items.map(function (x) { return x.value; }); }
+
+            new Chart(document.getElementById('statusChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: labels(byStatus),
+                    datasets: [{ data: values(byStatus), backgroundColor: statusColors, borderWidth: 1 }]
+                },
+                options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+            });
+
+            new Chart(document.getElementById('categoryChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: labels(byCategory),
+                    datasets: [{ data: values(byCategory), backgroundColor: palette, borderWidth: 1 }]
+                },
+                options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+            });
+
+            new Chart(document.getElementById('monthChart'), {
+                type: 'line',
+                data: {
+                    labels: labels(byMonth),
+                    datasets: [{
+                        label: 'Revenue',
+                        data: values(byMonth),
+                        borderColor: '#0b5cab',
+                        backgroundColor: 'rgba(19, 160, 232, 0.15)',
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+
+            var topCanvas = document.getElementById('topChart');
+            if (topCanvas) {
+                new Chart(topCanvas, {
+                    type: 'bar',
+                    data: {
+                        labels: top.map(function (x) { return x.code; }),
+                        datasets: [{
+                            label: 'Revenue (EUR)',
+                            data: top.map(function (x) { return x.revenue; }),
+                            backgroundColor: '#13a0e8'
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } }
+                    }
+                });
+            }
+        })();
+    </script>
+}

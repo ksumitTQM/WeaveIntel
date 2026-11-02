@@ -1,0 +1,120 @@
+@model AvailabilityManageViewModel
+@{
+    ViewData["Title"] = "Availability - " + Model.Product.Name;
+}
+
+<div class="mb-3">
+    <div class="text-muted small">
+        <a asp-controller="Products" asp-action="Index">Products</a> /
+        <a asp-controller="Products" asp-action="Details" asp-route-id="@Model.Product.Id">@Model.Product.Code</a>
+    </div>
+    <h1 class="wi-page-title mb-0">Manage availability</h1>
+    <p class="text-muted mb-0">
+        @Model.Product.Name - base price @Model.Product.BasePrice.ToString("N2") @Model.Product.Currency
+    </p>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-4">
+        <form asp-action="Add" method="post" class="wi-card">
+            <h2 class="wi-card-title">Add availability</h2>
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Form.ProductId" />
+
+            <div class="mb-3">
+                <label asp-for="Form.FlightRouteId" class="form-label"></label>
+                <select asp-for="Form.FlightRouteId" asp-items="Model.Routes" class="form-select">
+                    <option value="">Select a route...</option>
+                </select>
+                <span asp-validation-for="Form.FlightRouteId" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Form.Channel" class="form-label"></label>
+                <select asp-for="Form.Channel" asp-items="Html.GetEnumSelectList<SalesChannel>()" class="form-select"></select>
+                <span asp-validation-for="Form.Channel" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Form.RoutePrice" class="form-label"></label>
+                <input asp-for="Form.RoutePrice" class="form-control" type="number" step="0.01" min="0" />
+                <span asp-validation-for="Form.RoutePrice" class="text-danger"></span>
+            </div>
+
+            <div class="form-check mb-3">
+                <input asp-for="Form.IsActive" class="form-check-input" />
+                <label asp-for="Form.IsActive" class="form-check-label"></label>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Add</button>
+        </form>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="wi-card p-0">
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Route</th>
+                            <th>Channel</th>
+                            <th class="text-end">Price</th>
+                            <th>Status</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Items.Count == 0)
+                        {
+                            <tr>
+                                <td colspan="5" class="text-center text-muted py-4">No availability configured.</td>
+                            </tr>
+                        }
+                        @foreach (var item in Model.Items)
+                        {
+                            <tr>
+                                <td>
+                                    <span class="fw-semibold">@item.FlightRoute.Code</span>
+                                    <span class="text-muted small">@item.FlightRoute.Region.DisplayName()</span>
+                                </td>
+                                <td>@item.Channel.DisplayName()</td>
+                                <td class="text-end">
+                                    @((item.RoutePrice ?? Model.Product.BasePrice).ToString("N2")) @Model.Product.Currency
+                                    @if (!item.RoutePrice.HasValue)
+                                    {
+                                        <span class="text-muted small">(base)</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (item.IsActive)
+                                    {
+                                        <span class="wi-badge wi-status-live">Active</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="wi-badge wi-status-retired">Inactive</span>
+                                    }
+                                </td>
+                                <td class="text-end text-nowrap">
+                                    <form asp-action="Toggle" asp-route-id="@item.Id" method="post" class="d-inline">
+                                        <input type="hidden" name="productId" value="@Model.Product.Id" />
+                                        <button type="submit" class="btn btn-sm btn-outline-secondary">@(item.IsActive ? "Deactivate" : "Activate")</button>
+                                    </form>
+                                    <form asp-action="Remove" asp-route-id="@item.Id" method="post" class="d-inline"
+                                          onsubmit="return confirm('Remove this availability entry?');">
+                                        <input type="hidden" name="productId" value="@Model.Product.Id" />
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Remove</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

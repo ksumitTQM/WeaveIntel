@@ -1,0 +1,19 @@
+@model RouteFormViewModel
+
+<div class="row g-3">
+    <div class="col-md-4">
+        <label asp-for="Origin" class="form-label"></label>
+        <input asp-for="Origin" class="form-control text-uppercase" maxlength="3" placeholder="LHR" />
+        <span asp-validation-for="Origin" class="text-danger"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="Destination" class="form-label"></label>
+        <input asp-for="Destination" class="form-control text-uppercase" maxlength="3" placeholder="JFK" />
+        <span asp-validation-for="Destination" class="text-danger"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="Region" class="form-label"></label>
+        <select asp-for="Region" asp-items="Html.GetEnumSelectList<RouteRegion>()" class="form-select"></select>
+        <span asp-validation-for="Region" class="text-danger"></span>
+    </div>
+</div>

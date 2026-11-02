@@ -1,0 +1,24 @@
+@model FlightRoute
+@{
+    ViewData["Title"] = "Delete route";
+}
+
+<h1 class="wi-page-title">Delete route</h1>
+
+<div class="wi-card">
+    <div class="alert alert-warning">
+        Deleting this route also removes all product availability and performance records for it. This cannot be undone.
+    </div>
+
+    <dl class="row mb-0">
+        <dt class="col-sm-3">Route</dt>
+        <dd class="col-sm-9">@Model.Code</dd>
+        <dt class="col-sm-3">Region</dt>
+        <dd class="col-sm-9">@Model.Region.DisplayName()</dd>
+    </dl>
+
+    <form asp-action="Delete" asp-route-id="@Model.Id" method="post" class="mt-4 d-flex gap-2">
+        <button type="submit" class="btn btn-danger">Delete route</button>
+        <a class="btn btn-outline-secondary" asp-action="Index">Cancel</a>
+    </form>
+</div>

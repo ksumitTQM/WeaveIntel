@@ -1,0 +1,51 @@
+@model IEnumerable<FlightRoute>
+@{
+    ViewData["Title"] = "Routes";
+}
+
+<div class="d-flex justify-content-between align-items-center flex-wrap mb-3">
+    <div>
+        <h1 class="wi-page-title mb-0">Routes</h1>
+        <p class="text-muted mb-0">Origin and destination pairs where products are sold.</p>
+    </div>
+    <a class="btn btn-primary" asp-action="Create">New route</a>
+</div>
+
+<div class="wi-card p-0">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Route</th>
+                    <th>Origin</th>
+                    <th>Destination</th>
+                    <th>Region</th>
+                    <th class="text-end">Active listings</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-4">No routes defined yet.</td>
+                    </tr>
+                }
+                @foreach (var route in Model)
+                {
+                    <tr>
+                        <td class="fw-semibold">@route.Code</td>
+                        <td>@route.Origin</td>
+                        <td>@route.Destination</td>
+                        <td>@route.Region.DisplayName()</td>
+                        <td class="text-end">@(route.Availabilities.Count(a => a.IsActive))</td>
+                        <td class="text-end text-nowrap">
+                            <a class="btn btn-sm btn-outline-secondary" asp-action="Edit" asp-route-id="@route.Id">Edit</a>
+                            <a class="btn btn-sm btn-outline-danger" asp-action="Delete" asp-route-id="@route.Id">Delete</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

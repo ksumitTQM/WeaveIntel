@@ -1,0 +1,19 @@
+@model RouteFormViewModel
+@{
+    ViewData["Title"] = "New route";
+}
+
+<h1 class="wi-page-title">New route</h1>
+
+<form asp-action="Create" method="post" class="wi-card">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <partial name="_RouteForm" model="Model" />
+    <div class="mt-4 d-flex gap-2">
+        <button type="submit" class="btn btn-primary">Create route</button>
+        <a class="btn btn-outline-secondary" asp-action="Index">Cancel</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

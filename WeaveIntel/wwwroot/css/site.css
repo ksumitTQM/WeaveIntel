@@ -1,0 +1,310 @@
+/* WeaveIntel - aviation theme */
+:root {
+    --wi-navy: #0b2545;
+    --wi-navy-soft: #13315c;
+    --wi-sky: #13a0e8;
+    --wi-sky-soft: #e8f4fc;
+    --wi-gold: #f2a900;
+    --wi-green: #2fa36b;
+    --wi-red: #c0392b;
+    --wi-grey: #8a99ad;
+    --wi-bg: #f3f6fa;
+    --wi-border: #dde5ee;
+    --wi-text: #1c2b3a;
+}
+
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+body {
+    background: var(--wi-bg);
+    color: var(--wi-text);
+    font-family: "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+    margin-bottom: 70px;
+}
+
+a {
+    color: #0b5cab;
+}
+
+a:hover {
+    color: var(--wi-navy);
+}
+
+/* Navigation */
+.wi-navbar {
+    background: linear-gradient(90deg, var(--wi-navy) 0%, var(--wi-navy-soft) 100%);
+    border-bottom: 3px solid var(--wi-sky);
+}
+
+.wi-brand {
+    font-weight: 700;
+    letter-spacing: 0.04em;
+}
+
+.wi-brand-mark {
+    color: var(--wi-sky);
+    display: inline-block;
+    transform: rotate(-20deg);
+    margin-right: 0.15rem;
+}
+
+.wi-navbar .nav-link {
+    color: rgba(255, 255, 255, 0.78);
+    font-weight: 500;
+}
+
+.wi-navbar .nav-link:hover,
+.wi-navbar .nav-link.active {
+    color: #fff;
+    box-shadow: inset 0 -2px 0 var(--wi-sky);
+}
+
+.wi-main {
+    padding-top: 1.75rem;
+    padding-bottom: 1rem;
+}
+
+.wi-footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    line-height: 60px;
+    border-top: 1px solid var(--wi-border);
+    background: #fff;
+    color: #5a6b7d;
+    font-size: 0.875rem;
+}
+
+/* Typography */
+.wi-page-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--wi-navy);
+}
+
+.wi-card-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--wi-navy);
+    margin-bottom: 0.9rem;
+}
+
+/* Cards */
+.wi-card {
+    background: #fff;
+    border: 1px solid var(--wi-border);
+    border-radius: 0.6rem;
+    padding: 1.25rem;
+    box-shadow: 0 1px 3px rgba(11, 37, 69, 0.06);
+}
+
+.wi-card.p-0 {
+    padding: 0;
+    overflow: hidden;
+}
+
+.wi-subtle-box {
+    background: var(--wi-sky-soft);
+    border: 1px solid #cde6f7;
+    border-radius: 0.5rem;
+    padding: 1rem;
+}
+
+/* KPI tiles */
+.wi-kpi {
+    background: #fff;
+    border: 1px solid var(--wi-border);
+    border-left: 4px solid var(--wi-sky);
+    border-radius: 0.6rem;
+    padding: 0.9rem 1.1rem;
+    box-shadow: 0 1px 3px rgba(11, 37, 69, 0.06);
+    height: 100%;
+}
+
+.wi-kpi-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #5a6b7d;
+}
+
+.wi-kpi-value {
+    font-size: 1.7rem;
+    font-weight: 700;
+    color: var(--wi-navy);
+    line-height: 1.2;
+}
+
+.wi-kpi-sub {
+    font-size: 0.8rem;
+    color: #7a8a9b;
+}
+
+/* Charts */
+.wi-chart-box {
+    position: relative;
+    height: 260px;
+}
+
+.wi-chart-box-sm {
+    height: 220px;
+}
+
+/* Tables */
+.table thead th {
+    background: #f7f9fc;
+    color: #4a5b6d;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--wi-border);
+    white-space: nowrap;
+}
+
+/* Badges */
+.wi-badge {
+    display: inline-block;
+    padding: 0.18rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #fff;
+    vertical-align: middle;
+}
+
+.wi-badge-outline {
+    background: transparent;
+    color: var(--wi-navy);
+    border: 1px solid var(--wi-navy);
+}
+
+.wi-status-concept {
+    background: var(--wi-grey);
+}
+
+.wi-status-development {
+    background: var(--wi-gold);
+    color: #3a2a00;
+}
+
+.wi-status-pilot {
+    background: var(--wi-sky);
+}
+
+.wi-status-live {
+    background: var(--wi-green);
+}
+
+.wi-status-retired {
+    background: var(--wi-red);
+}
+
+/* Recent changes */
+.wi-change-list li {
+    padding: 0.65rem 0;
+    border-bottom: 1px solid var(--wi-border);
+}
+
+.wi-change-list li:last-child {
+    border-bottom: none;
+}
+
+/* Timeline */
+.wi-timeline {
+    list-style: none;
+    margin: 0;
+    padding: 0 0 0 1.1rem;
+    border-left: 2px solid var(--wi-border);
+}
+
+.wi-timeline-item {
+    position: relative;
+    padding: 0 0 1.1rem 0.9rem;
+}
+
+.wi-timeline-item:last-child {
+    padding-bottom: 0;
+}
+
+.wi-timeline-dot {
+    position: absolute;
+    left: -1.55rem;
+    top: 0.3rem;
+    width: 0.85rem;
+    height: 0.85rem;
+    border-radius: 50%;
+    background: var(--wi-sky);
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 1px var(--wi-sky);
+}
+
+.wi-timeline-launch .wi-timeline-dot {
+    background: var(--wi-gold);
+    box-shadow: 0 0 0 1px var(--wi-gold);
+}
+
+.wi-timeline-sales .wi-timeline-dot {
+    background: var(--wi-green);
+    box-shadow: 0 0 0 1px var(--wi-green);
+}
+
+.wi-timeline-date {
+    font-size: 0.78rem;
+    color: #6b7b8c;
+}
+
+.wi-timeline-title {
+    font-weight: 600;
+    color: var(--wi-navy);
+}
+
+.wi-timeline-detail {
+    font-size: 0.85rem;
+    color: #5a6b7d;
+}
+
+/* Forms */
+.form-label {
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: #34495e;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--wi-sky);
+    box-shadow: 0 0 0 0.2rem rgba(19, 160, 232, 0.2);
+}
+
+.field-validation-error {
+    font-size: 0.85rem;
+}
+
+.input-validation-error {
+    border-color: var(--wi-red);
+}
+
+/* Buttons */
+.btn-primary {
+    background-color: #0b5cab;
+    border-color: #0b5cab;
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+    background-color: var(--wi-navy);
+    border-color: var(--wi-navy);
+}
+
+.btn-outline-primary {
+    color: #0b5cab;
+    border-color: #0b5cab;
+}
+
+.btn-outline-primary:hover {
+    background-color: #0b5cab;
+    border-color: #0b5cab;
+}
